@@ -1,0 +1,596 @@
+{% extends "base.html" %}
+
+{% block title %}SkillRadar — Match Your Resume to Any Job{% endblock %}
+
+{% block extra_css %}
+<style>
+
+  /* ── Hero Section ── */
+  .hero-section {
+    position: relative;
+    padding: 5rem 0 3rem;
+    overflow: hidden;
+  }
+
+  .hero-gradient {
+    position: absolute;
+    top: -100px;
+    right: -150px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle at center,
+      #FFCEE3 0%,
+      #FF85BB 35%,
+      rgba(255, 133, 187, 0.15) 65%,
+      transparent 75%
+    );
+    border-radius: 50%;
+    z-index: 0;
+    filter: blur(40px);
+    opacity: 0.6;
+  }
+
+  .hero-gradient-2 {
+    position: absolute;
+    bottom: -80px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle at center,
+      rgba(2, 26, 84, 0.06) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    z-index: 0;
+    filter: blur(30px);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--pink-light);
+    color: var(--navy);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .hero-title {
+    font-size: 3.2rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--navy);
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-title span {
+    color: var(--pink);
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 500px;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+  }
+
+  .stat-item {
+    text-align: left;
+  }
+
+  .stat-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--navy);
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ── Form Section ── */
+  .form-section {
+    padding: 3rem 0 5rem;
+  }
+
+  .form-card {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(2, 26, 84, 0.10);
+    padding: 2.5rem;
+    border: 1px solid rgba(255, 133, 187, 0.15);
+  }
+
+  .input-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+    background: var(--offwhite);
+    padding: 4px;
+    border-radius: 10px;
+    width: fit-content;
+  }
+
+  .toggle-btn {
+    padding: 0.45rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .toggle-btn.active {
+    background: var(--white);
+    color: var(--navy);
+    box-shadow: 0 2px 8px rgba(2, 26, 84, 0.1);
+  }
+
+  .form-label-custom {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .form-control-custom {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    background: var(--white);
+    transition: border-color 0.2s;
+    resize: vertical;
+    outline: none;
+  }
+
+  .form-control-custom:focus {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 3px rgba(255, 133, 187, 0.15);
+  }
+
+  .form-control-custom::placeholder {
+    color: #9CA3AF;
+  }
+
+  .file-upload-area {
+    border: 2px dashed #E5E7EB;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--offwhite);
+  }
+
+  .file-upload-area:hover {
+    border-color: var(--pink);
+    background: var(--pink-light);
+    opacity: 0.8;
+  }
+
+  .file-upload-area i {
+    font-size: 2rem;
+    color: var(--pink);
+    margin-bottom: 0.5rem;
+  }
+
+  .file-upload-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--navy);
+  }
+
+  .file-upload-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #E5E7EB;
+  }
+
+  .analyze-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1.5rem;
+  }
+
+  .analyze-btn:hover {
+    background: #032470;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(2, 26, 84, 0.25);
+  }
+
+  .analyze-btn:active {
+    transform: translateY(0);
+  }
+
+  /* ── How it works ── */
+  .how-section {
+    padding: 4rem 0;
+    background: var(--white);
+    margin: 0;
+  }
+
+  .step-card {
+    text-align: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .step-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--pink-light);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.2rem;
+    font-size: 1.5rem;
+  }
+
+  .step-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+  }
+
+  .step-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── Error ── */
+  .error-alert {
+    background: #FFF1F2;
+    border: 1px solid #FECDD3;
+    border-left: 4px solid #F43F5E;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    color: #9F1239;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* loading overlay */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 26, 84, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .loading-overlay.active {
+    display: flex;
+  }
+
+  .loading-spinner {
+    width: 56px;
+    height: 56px;
+    border: 5px solid rgba(255,255,255,0.2);
+    border-top-color: var(--pink);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+
+  .loading-text {
+    color: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Analysing your resume...</div>
+</div>
+
+<!-- Hero -->
+<section class="hero-section">
+  <div class="hero-gradient"></div>
+  <div class="hero-gradient-2"></div>
+  <div class="container hero-content">
+    <div class="row align-items-center">
+
+      <div class="col-lg-6">
+        <div class="hero-badge">
+          <i class="bi bi-stars"></i>
+          AI-Powered Resume Analysis
+        </div>
+        <h1 class="hero-title">
+          Know exactly<br>where you <span>stand.</span>
+        </h1>
+        <p class="hero-subtitle">
+          Paste your resume and a job description.
+          SkillRadar scores your match, finds your skill gaps,
+          and gives you AI suggestions to improve — in seconds.
+        </p>
+        <a href="#analyze-form" class="btn-primary-custom">
+          Analyse My Resume &nbsp;→
+        </a>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-number">200+</div>
+            <div class="stat-label">Tech skills tracked</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">5</div>
+            <div class="stat-label">Resume quality checks</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">AI</div>
+            <div class="stat-label">Powered suggestions</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 d-none d-lg-flex justify-content-center">
+        <img
+          src="{{ url_for('static', filename='images/hero-illustration.jpg') }}"
+          alt="Resume Analysis Illustration"
+          style="max-width: 320px; width: 100%; border-radius: 45%; opacity: 0.80;"
+          onerror="this.style.display='none'"
+        />
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="how-section">
+  <div class="container">
+    <div class="text-center mb-4">
+      <div class="section-label">How it works</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:800; color:var(--navy); font-size:1.8rem;">
+        Three steps to a stronger resume
+      </h2>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-4">
+        <div class="step-card">
+          <div class="step-icon">📄</div>
+          <div class="step-title">Paste or Upload</div>
+          <p class="step-desc">Upload your resume as a PDF or paste it as plain text alongside the job description.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step-card">
+          <div class="step-icon">🎯</div>
+          <div class="step-title">Get Your Score</div>
+          <p class="step-desc">See your match percentage, skill gaps, keyword analysis, and a resume quality score.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step-card">
+          <div class="step-icon">✨</div>
+          <div class="step-title">AI Suggestions</div>
+          <p class="step-desc">Receive 4 specific, actionable suggestions generated by LLaMA 3.1 to close your gaps.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Analyze Form -->
+<section class="form-section" id="analyze-form">
+  <div class="container">
+    <div class="text-center mb-4">
+      <div class="section-label">Start Now</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:800; color:var(--navy); font-size:1.8rem;">
+        Analyse your resume
+      </h2>
+    </div>
+
+    {% if error %}
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="error-alert">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          {{ error }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/analyze"
+          enctype="multipart/form-data"
+          id="analyzeForm"
+          onsubmit="showLoading()">
+      <div class="row g-4 justify-content-center">
+
+        <!-- Resume Input -->
+        <div class="col-lg-5">
+          <div class="form-card">
+            <div class="section-label">Step 1</div>
+            <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:700;
+                       color:var(--navy); font-size:1.2rem; margin-bottom:1.2rem;">
+              Your Resume
+            </h3>
+
+            <!-- Toggle -->
+            <div class="input-toggle">
+              <button type="button" class="toggle-btn active"
+                      onclick="switchInput('text')">
+                Paste Text
+              </button>
+              <button type="button" class="toggle-btn"
+                      onclick="switchInput('pdf')">
+                Upload PDF
+              </button>
+            </div>
+
+            <input type="hidden" name="resume_input_type" id="resumeInputType" value="text"/>
+
+            <!-- Text Input -->
+            <div id="textInputDiv">
+              <label class="form-label-custom">Paste your resume text</label>
+              <textarea
+                name="resume_text"
+                class="form-control-custom"
+                rows="12"
+                placeholder="Paste your full resume here — including experience, skills, education, and projects..."></textarea>
+            </div>
+
+            <!-- PDF Input -->
+            <div id="pdfInputDiv" style="display:none;">
+              <label class="form-label-custom">Upload resume PDF</label>
+              <div class="file-upload-area" onclick="document.getElementById('resumePdf').click()">
+                <i class="bi bi-cloud-upload"></i>
+                <div class="file-upload-text">Click to upload PDF</div>
+                <div class="file-upload-sub">Max 5MB · PDF only</div>
+              </div>
+              <input type="file" name="resume_pdf" id="resumePdf"
+                     accept=".pdf" style="display:none;"
+                     onchange="showFileName(this)"/>
+              <div id="fileName" style="font-size:0.82rem; color:var(--text-muted);
+                                        margin-top:0.5rem; text-align:center;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- JD Input -->
+        <div class="col-lg-5">
+          <div class="form-card">
+            <div class="section-label">Step 2</div>
+            <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:700;
+                       color:var(--navy); font-size:1.2rem; margin-bottom:1.2rem;">
+              Job Description
+            </h3>
+            <label class="form-label-custom">Paste the job description</label>
+            <textarea
+              name="jd_text"
+              class="form-control-custom"
+              rows="15"
+              placeholder="Paste the full job description here — requirements, responsibilities, and tech stack..."></textarea>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="col-lg-10">
+          <button type="submit" class="analyze-btn">
+            <i class="bi bi-radar"></i>
+            Run SkillRadar Analysis
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function switchInput(type) {
+    const textDiv = document.getElementById('textInputDiv');
+    const pdfDiv  = document.getElementById('pdfInputDiv');
+    const hiddenInput = document.getElementById('resumeInputType');
+    const btns = document.querySelectorAll('.toggle-btn');
+
+    if (type === 'text') {
+      textDiv.style.display = 'block';
+      pdfDiv.style.display  = 'none';
+      hiddenInput.value = 'text';
+      btns[0].classList.add('active');
+      btns[1].classList.remove('active');
+    } else {
+      textDiv.style.display = 'none';
+      pdfDiv.style.display  = 'block';
+      hiddenInput.value = 'pdf';
+      btns[0].classList.remove('active');
+      btns[1].classList.add('active');
+    }
+  }
+
+  function showFileName(input) {
+    const label = document.getElementById('fileName');
+    if (input.files && input.files[0]) {
+      label.textContent = '📎 ' + input.files[0].name;
+    }
+  }
+
+  function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('active');
+  }
+</script>
+{% endblock %}

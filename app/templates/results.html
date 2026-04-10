@@ -1,0 +1,528 @@
+{% extends "base.html" %}
+
+{% block title %}SkillRadar — Your Results{% endblock %}
+
+{% block extra_css %}
+<style>
+
+  .results-hero {
+    background: var(--navy);
+    padding: 3rem 0 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .results-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle,
+      rgba(255,133,187,0.25) 0%,
+      transparent 70%);
+    border-radius: 50%;
+  }
+
+  .results-hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+  }
+
+  .back-btn:hover { color: var(--pink); }
+
+  .results-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--white);
+    margin-bottom: 0.4rem;
+  }
+
+  .results-subtitle {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.9rem;
+  }
+
+  /* ── Score Ring ── */
+  .score-ring-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-ring {
+    position: relative;
+    width: 140px;
+    height: 140px;
+  }
+
+  .score-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  .score-ring-bg {
+    fill: none;
+    stroke: rgba(255,255,255,0.1);
+    stroke-width: 10;
+  }
+
+  .score-ring-fill {
+    fill: none;
+    stroke: var(--pink);
+    stroke-width: 10;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.2s ease;
+  }
+
+  .score-ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .score-pct {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.6);
+    font-weight: 500;
+  }
+
+  .score-label-badge {
+    margin-top: 0.75rem;
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .badge-success { background: #D1FAE5; color: #065F46; }
+  .badge-warning { background: #FEF9C3; color: #854D0E; }
+  .badge-danger  { background: #FFE4E6; color: #9F1239; }
+
+  /* ── Main Content ── */
+  .results-body {
+    padding: 3rem 0 5rem;
+  }
+
+  .result-card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(2,26,84,0.08);
+    border: none;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-title-custom {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--navy);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--pink-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+  }
+
+  /* ── Resume Score Bar ── */
+  .score-bar-row {
+    margin-bottom: 1rem;
+  }
+
+  .score-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.3rem;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .score-bar-track {
+    height: 8px;
+    background: var(--offwhite);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--pink), var(--navy));
+    transition: width 1s ease;
+  }
+
+  .score-bar-feedback {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* ── Total resume score circle ── */
+  .resume-total {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--offwhite);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .resume-total-score {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--navy);
+    line-height: 1;
+  }
+
+  .resume-total-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ── AI Suggestions ── */
+  .suggestion-item {
+    display: flex;
+    gap: 12px;
+    padding: 1rem;
+    border-radius: 10px;
+    background: var(--offwhite);
+    margin-bottom: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .suggestion-num {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 50%;
+    background: var(--pink);
+    color: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .suggestion-text {
+    font-size: 0.875rem;
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+
+  /* ── Skill tags ── */
+  .skill-tag {
+    display: inline-block;
+    padding: 0.3rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin: 3px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .tag-matched  { background: #D1FAE5; color: #065F46; }
+  .tag-missing  { background: #FFE4E6; color: #9F1239; }
+  .tag-extra    { background: var(--pink-light); color: var(--navy); }
+  .tag-keyword  { background: #EFF6FF; color: #1D4ED8; }
+
+  .empty-state {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  /* ── Keyword columns ── */
+  .keyword-section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .kw-matched { color: #065F46; }
+  .kw-missing { color: #9F1239; }
+  .kw-extra   { color: #1D4ED8; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Results Hero -->
+<section class="results-hero">
+  <div class="container results-hero-content">
+    <a href="/" class="back-btn">
+      <i class="bi bi-arrow-left"></i> Analyse another resume
+    </a>
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="results-title">Your SkillRadar Report</h1>
+        <p class="results-subtitle">
+          Here's how your resume matches this job description.
+        </p>
+      </div>
+      <div class="col-lg-4 d-flex justify-content-lg-end justify-content-start mt-3 mt-lg-0">
+        <div class="score-ring-wrapper">
+          <div class="score-ring">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <circle class="score-ring-bg" cx="70" cy="70" r="58"/>
+              <circle class="score-ring-fill" cx="70" cy="70" r="58"
+                id="scoreRingFill"
+                stroke-dasharray="364.4"
+                stroke-dashoffset="364.4"/>
+            </svg>
+            <div class="score-ring-text">
+              <span class="score-number" id="scoreDisplay">0</span>
+              <span class="score-pct">match</span>
+            </div>
+          </div>
+          <span class="score-label-badge badge-{{ score_color }}">
+            {{ score_label }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Results Body -->
+<section class="results-body">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- LEFT COLUMN -->
+      <div class="col-lg-7">
+
+        <!-- Tech Skills -->
+        <div class="result-card">
+          <div class="card-title-custom">
+            <div class="card-icon">🎯</div>
+            Tech Skills Analysis
+          </div>
+
+          <div class="keyword-section-title kw-matched">
+            ✅ Matched Skills ({{ skill_analysis.matched_skills | length }})
+          </div>
+          <div>
+            {% if skill_analysis.matched_skills %}
+              {% for skill in skill_analysis.matched_skills %}
+                <span class="skill-tag tag-matched">{{ skill }}</span>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">No matching tech skills found.</div>
+            {% endif %}
+          </div>
+
+          <div class="keyword-section-title kw-missing" style="margin-top:1.2rem;">
+            ❌ Missing Skills ({{ skill_analysis.missing_skills | length }})
+          </div>
+          <div>
+            {% if skill_analysis.missing_skills %}
+              {% for skill in skill_analysis.missing_skills %}
+                <span class="skill-tag tag-missing">{{ skill }}</span>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">🎉 No missing tech skills detected!</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Keyword Analysis -->
+        <div class="result-card">
+          <div class="card-title-custom">
+            <div class="card-icon">🔍</div>
+            Keyword Analysis
+          </div>
+
+          <div class="keyword-section-title kw-matched">
+            ✅ Matched Keywords ({{ keyword_analysis.matched | length }})
+          </div>
+          <div>
+            {% if keyword_analysis.matched %}
+              {% for kw in keyword_analysis.matched %}
+                <span class="skill-tag tag-matched">{{ kw }}</span>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">No matched keywords found.</div>
+            {% endif %}
+          </div>
+
+          <div class="keyword-section-title kw-missing" style="margin-top:1.2rem;">
+            ❌ Missing Keywords ({{ keyword_analysis.missing | length }})
+          </div>
+          <div>
+            {% if keyword_analysis.missing %}
+              {% for kw in keyword_analysis.missing %}
+                <span class="skill-tag tag-missing">{{ kw }}</span>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">🎉 No missing keywords!</div>
+            {% endif %}
+          </div>
+
+          <div class="keyword-section-title kw-extra" style="margin-top:1.2rem;">
+            💡 In Your Resume But Not In JD ({{ keyword_analysis.extra | length }})
+          </div>
+          <div>
+            {% if keyword_analysis.extra %}
+              {% for kw in keyword_analysis.extra %}
+                <span class="skill-tag tag-keyword">{{ kw }}</span>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">None found.</div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-lg-5">
+
+        <!-- AI Suggestions -->
+        <div class="result-card">
+          <div class="card-title-custom">
+            <div class="card-icon">✨</div>
+            AI Suggestions
+            <span style="font-size:0.72rem; color:var(--text-muted);
+                         font-weight:400; margin-left:4px;">
+              via LLaMA 3.1
+            </span>
+          </div>
+          {% if ai_suggestions %}
+            {% for suggestion in ai_suggestions %}
+              <div class="suggestion-item">
+                <div class="suggestion-num">{{ loop.index }}</div>
+                <div class="suggestion-text">{{ suggestion }}</div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">AI suggestions unavailable.</div>
+          {% endif %}
+        </div>
+
+        <!-- Resume Quality Score -->
+        <div class="result-card">
+          <div class="card-title-custom">
+            <div class="card-icon">📋</div>
+            Resume Quality Score
+          </div>
+
+          <div class="resume-total">
+            <div>
+              <div class="resume-total-score">
+                {{ resume_score.total }}<span style="font-size:1rem;
+                  color:var(--text-muted)">/100</span>
+              </div>
+              <div class="resume-total-label">Overall resume strength</div>
+            </div>
+          </div>
+
+          {% for item in resume_score.breakdown %}
+          <div class="score-bar-row">
+            <div class="score-bar-label">
+              <span>{{ item.label }}</span>
+              <span>{{ item.score }}/{{ item.max }}</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill"
+                   style="width: {{ (item.score / item.max * 100) | round }}%">
+              </div>
+            </div>
+            <div class="score-bar-feedback">{{ item.feedback }}</div>
+          </div>
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Analyse Again -->
+    <div class="text-center mt-4">
+      <a href="/" class="btn-primary-custom">
+        ← Analyse Another Resume
+      </a>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Animate match score ring on load
+  window.addEventListener('load', () => {
+    const score = {{ match_score }};
+    const circumference = 364.4;
+    const offset = circumference - (score / 100) * circumference;
+
+    const ring = document.getElementById('scoreRingFill');
+    const display = document.getElementById('scoreDisplay');
+
+    // Animate ring
+    setTimeout(() => {
+      ring.style.strokeDashoffset = offset;
+    }, 200);
+
+    // Animate number count up
+    let current = 0;
+    const target = Math.round(score);
+    const step = Math.max(1, Math.floor(target / 60));
+    const interval = setInterval(() => {
+      current = Math.min(current + step, target);
+      display.textContent = current;
+      if (current >= target) clearInterval(interval);
+    }, 20);
+  });
+</script>
+{% endblock %}
