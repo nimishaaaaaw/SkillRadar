@@ -80,25 +80,25 @@ Results rendered with animated score ring
 ## 📸 Screenshots
 
 ### 🏠 Landing Page
-![Landing](screenshots/landing.png)
+![Landing](screenshots/Screenshot(2739).png)
 
 ### 📋 How It Works
-![How It Works](screenshots/howitworks.png)
+![How It Works](screenshots/Screenshot(2740).png)
 
 ### 📝 Input Form
-![Form](screenshots/form.png)
+![Form](screenshots/Screenshot(2741).png)
 
 ### ⏳ Analysis Loading
-![Loading](screenshots/loading.png)
+![Loading](screenshots/Screenshot(2743).png)
 
 ### 📊 Results — Match Score & Tech Skills
-![Results Score](screenshots/results_score.png)
+![Results Score](screenshots/Screenshot(2744).png)
 
 ### 🔍 Results — Keyword Analysis & AI Suggestions
-![Results Keywords](screenshots/results_keywords.png)
+![Results Keywords](screenshots/Screenshot(2746).png)
 
 ### 📋 Results — Resume Quality Score
-![Results Resume Score](screenshots/results_resumescore.png)
+![Results Resume Score](screenshots/Screenshot(2747).png)
 
 ---
 
